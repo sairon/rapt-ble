@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier
+_commit: 7567e0e
+_src_path: gh:browniebroke/pypackage-template
+add_me_as_contributor: false
+copyright_year: '2023'
+documentation: true
+email: sairon@sairon.cz
+full_name: Jan Čermák
+github_username: sairon
+initial_commit: false
+open_source_license: MIT
+package_name: rapt_ble
+project_name: RAPT BLE
+project_short_description: Parser for the RAPT Pill hydrometer BLE packets.
+project_slug: rapt-ble
+run_poetry_install: false
+setup_github: false
+setup_pre_commit: false
+
