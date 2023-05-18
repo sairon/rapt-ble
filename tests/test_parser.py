@@ -45,7 +45,7 @@ def bytes_to_service_info(payload: bytes) -> BluetoothServiceInfo:
         # payload v2 - invalid gravity velocity
         b"RAPT\x02\x00\x00\x00\x00\x00\x00\x94\x8bD|\xb9\xf64E\x02b&w*\xac",
         # payload v2 - valid gravity velocity
-        b'RAPT\x02\x00\x01\x3e\x9d\xd1\xab\x94\x8bD|\xb9\xf64E\x02b&w*\xac',
+        b"RAPT\x02\x00\x01\x3e\x9d\xd1\xab\x94\x8bD|\xb9\xf64E\x02b&w*\xac",
     ],
 )
 def test_device_supported(data_bytes):
@@ -71,7 +71,7 @@ def test_parse_version():
         # payload v2 - invalid gravity velocity
         b"RAPT\x02\x00\x00\x00\x00\x00\x00\x94\x8bD|\xb9\xf64E\x02b&w*\xac",
         # payload v2 - valid gravity velocity
-        b'RAPT\x02\x00\x01\x3e\x9d\xd1\xab\x94\x8bD|\xb9\xf64E\x02b&w*\xac',
+        b"RAPT\x02\x00\x01\x3e\x9d\xd1\xab\x94\x8bD|\xb9\xf64E\x02b&w*\xac",
     ],
 )
 def test_parse_metrics(data_bytes):

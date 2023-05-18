@@ -64,7 +64,9 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
         # convert to actual metrics
         metrics = RAPTPillMetrics(
             version=metrics_raw.version,
-            mac=hexlify(metrics_raw.mac).decode("ascii") if metrics_raw.version == 1 else "",
+            mac=hexlify(metrics_raw.mac).decode("ascii")
+            if metrics_raw.version == 1
+            else "",
             temperature=round(metrics_raw.temperature / 128 - 273.15, 2),
             gravity=round(metrics_raw.gravity / 1000, 4),
             x=metrics_raw.x / 16,
