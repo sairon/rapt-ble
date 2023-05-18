@@ -26,6 +26,8 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
         This is what the advertisement data payload looks like in C,
         endianness is big endian:
 
+        Version 1 (with MAC, no gravity velocity):
+
         typedef struct __attribute__((packed)) {
             char prefix[4];        // RAPT
             uint8_t version;       // always 0x01
@@ -36,7 +38,22 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
             int16_t y;             // x / 16
             int16_t z;             // x / 16
             int16_t battery;       // x / 256
-        } RAPTPillMetrics;
+        } RAPTPillMetricsV1;
+
+        Version 2 (no MAC, with gravity velocity):
+
+        typedef struct __attribute__((packed)) {
+            char prefix[4];        // RAPT
+            uint8_t version;       // always 0x02
+            bool gravity_velocity_valid;
+            float gravity_velocity;
+            uint16_t temperature;  // x / 128 - 273.15
+            float gravity;         // / 1000
+            int16_t x;             // x / 16
+            int16_t y;             // x / 16
+            int16_t z;             // x / 16
+            int16_t battery;       // x / 256
+        } RAPTPillMetricsV2;
         """
         if len(data) != 23:
             raise ValueError("Metrics data must have length 23")
@@ -47,7 +64,7 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
         # convert to actual metrics
         metrics = RAPTPillMetrics(
             version=metrics_raw.version,
-            mac=hexlify(metrics_raw.mac).decode("ascii"),
+            mac=hexlify(metrics_raw.mac).decode("ascii") if metrics_raw.version == 1 else "",
             temperature=round(metrics_raw.temperature / 128 - 273.15, 2),
             gravity=round(metrics_raw.gravity / 1000, 4),
             x=metrics_raw.x / 16,
@@ -56,7 +73,7 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
             battery=round(metrics_raw.battery / 256),
         )
 
-        if metrics.version != 1:
+        if metrics.version <= 2:
             _LOGGER.warning(
                 "Unexpected RAPT payload version %d, measurements may be incorrect!",
                 metrics.version,
