@@ -6,13 +6,27 @@ from struct import unpack
 from bluetooth_data_tools import short_address
 from bluetooth_sensor_state_data import BluetoothData
 from home_assistant_bluetooth import BluetoothServiceInfo
-from sensor_state_data import DeviceClass, SensorLibrary, Units
+from sensor_state_data import SensorLibrary
+
+from .custom_state_data import DeviceClass, Units
 
 _LOGGER = logging.getLogger(__name__)
 
 
 RAPTPillMetrics = namedtuple(
-    "RAPTPillMetrics", "version, mac, temperature, gravity, x, y, z, battery"
+    "RAPTPillMetrics",
+    "version, mac, gravity_velocity_valid, gravity_velocity,"
+    "temperature, gravity, x, y, z, battery",
+)
+
+RAPTPillMetricsV1 = namedtuple(
+    "RAPTPillMetricsV1", "version, mac, temperature, gravity, x, y, z, battery"
+)
+
+RAPTPillMetricsV2 = namedtuple(
+    "RAPTPillMetricsV2",
+    "version, gravity_velocity_valid, gravity_velocity,"
+    "temperature, gravity, x, y, z, battery",
 )
 
 
@@ -45,8 +59,9 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
         typedef struct __attribute__((packed)) {
             char prefix[4];        // RAPT
             uint8_t version;       // always 0x02
+            uint8_t reserved;      // always 0x00
             bool gravity_velocity_valid;
-            float gravity_velocity;
+            float gravity_velocity;  // points per day, negative when falling
             uint16_t temperature;  // x / 128 - 273.15
             float gravity;         // / 1000
             int16_t x;             // x / 16
@@ -58,17 +73,41 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
         if len(data) != 23:
             raise ValueError("Metrics data must have length 23")
 
-        # get "raw" data, drop second part of the prefix ("PT"), start with the version
-        metrics_raw = RAPTPillMetrics._make(unpack(">B6sHfhhhh", data[2:]))
+        metrics_version = data[2]
+
+        metrics_raw: RAPTPillMetrics
+
+        if metrics_version == 1:
+            # get "raw" data, drop second part of the prefix ("PT"),
+            # start with the version
+            metrics_raw_v1 = RAPTPillMetricsV1._make(unpack(">B6sHfhhhh", data[2:]))
+            metrics_raw = RAPTPillMetrics(
+                **metrics_raw_v1._asdict(),
+                gravity_velocity=None,
+                gravity_velocity_valid=None,
+            )
+        else:
+            if metrics_version != 2:
+                _LOGGER.warning(
+                    "Unexpected RAPT payload version %d, "
+                    "measurements may be incorrect!",
+                    metrics_version,
+                )
+            metrics_raw_v2 = RAPTPillMetricsV2._make(unpack(">Bx?fHfhhhh", data[2:]))
+            metrics_raw = RAPTPillMetrics(**metrics_raw_v2._asdict(), mac=None)
 
         # convert to actual metrics
         metrics = RAPTPillMetrics(
             version=metrics_raw.version,
-            mac=(
-                hexlify(metrics_raw.mac).decode("ascii")
-                if metrics_raw.version == 1
-                else ""
-            ),
+            mac=hexlify(metrics_raw.mac).decode("ascii")
+            if metrics_version == 1
+            else None,
+            gravity_velocity_valid=metrics_raw.gravity_velocity_valid
+            if metrics_version > 1
+            else None,
+            gravity_velocity=metrics_raw.gravity_velocity
+            if metrics_version > 1
+            else None,
             temperature=round(metrics_raw.temperature / 128 - 273.15, 2),
             gravity=round(metrics_raw.gravity / 1000, 4),
             x=metrics_raw.x / 16,
@@ -76,12 +115,6 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
             z=metrics_raw.z / 16,
             battery=round(metrics_raw.battery / 256),
         )
-
-        if metrics.version > 2:
-            _LOGGER.warning(
-                "Unexpected RAPT payload version %d, measurements may be incorrect!",
-                metrics.version,
-            )
 
         _LOGGER.debug("Parsed RAPT Pill data: %s", metrics)
 
@@ -97,6 +130,16 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
             native_unit_of_measurement=Units.SPECIFIC_GRAVITY,
             native_value=metrics.gravity,
         )
+
+        if metrics_version >= 2:
+            self.update_sensor(
+                key=DeviceClass.SPECIFIC_GRAVITY_VELOCITY,
+                device_class=DeviceClass.SPECIFIC_GRAVITY_VELOCITY,
+                native_unit_of_measurement=Units.SPECIFIC_GRAVITY_POINTS_PER_DAY,
+                native_value=metrics.gravity_velocity
+                if metrics.gravity_velocity_valid
+                else None,
+            )
 
     def _process_version(self, data: bytes) -> None:
         """Process advertisement with SW version."""
