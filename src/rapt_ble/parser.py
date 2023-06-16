@@ -75,7 +75,7 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
             battery=round(metrics_raw.battery / 256),
         )
 
-        if metrics.version <= 2:
+        if metrics.version > 2:
             _LOGGER.warning(
                 "Unexpected RAPT payload version %d, measurements may be incorrect!",
                 metrics.version,
