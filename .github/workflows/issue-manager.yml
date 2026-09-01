@@ -18,7 +18,7 @@ jobs:
   issue-manager:
     runs-on: ubuntu-latest
     steps:
-      - uses: tiangolo/issue-manager@4d1b7e05935a404dc8337d30bd23be46be8bb8e5 # 0.4.0
+      - uses: tiangolo/issue-manager@dc846170c36eb62fb434b3d943b36399fe240fb5 # 0.8.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           config: >
