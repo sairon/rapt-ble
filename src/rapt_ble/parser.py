@@ -104,7 +104,7 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
         # first two bytes are manufacturer ID, we just need to strip initial "G"
         if data[0] != 71:  # "G"
             _LOGGER.warning(
-                "'%r' doesn't seem to be version advertisement payload, ignoring" % data
+                "'%r' doesn't seem to be version advertisement payload, ignoring", data
             )
             return
         version = data[1:].decode("ascii")

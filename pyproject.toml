@@ -68,9 +68,27 @@ exclude_lines = [
     'if __name__ == "__main__":',
 ]
 
-[tool.isort]
-profile = "black"
-known_first_party = ["rapt_ble", "tests"]
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    "F",       # pyflakes
+    "I",       # isort
+    "UP",      # pyupgrade
+    "PT006",   # pytest-parametrize-names-wrong-type
+    "PT007",   # pytest-parametrize-values-wrong-type
+    "PLC0415", # import-outside-top-level
+]
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 100
+
+[tool.ruff.lint.isort]
+known-first-party = ["rapt_ble", "tests"]
 
 [tool.mypy]
 check_untyped_defs = true
