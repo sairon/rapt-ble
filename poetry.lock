@@ -710,18 +710,18 @@ files = [
 
 [[package]]
 name = "sensor-state-data"
-version = "2.13.0"
+version = "2.20.0"
 description = "Models for storing and converting Sensor Data state"
 optional = false
-python-versions = ">=3.9,<4.0"
+python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "sensor_state_data-2.13.0-py3-none-any.whl", hash = "sha256:d729f657af6c35bf22f3876619e7eb0d0b05b8e4a86330bcdc8e15ba3f2fd334"},
-    {file = "sensor_state_data-2.13.0.tar.gz", hash = "sha256:4459941b491f0f99339a4df1bc1ab8f8abd11c76c4f853897b3fb13a5a93fa97"},
+    {file = "sensor_state_data-2.20.0-py3-none-any.whl", hash = "sha256:34aaff3c956fb832dd0c6bfd4c20f2152d0fc1f50b782951d958bf08f099c12c"},
+    {file = "sensor_state_data-2.20.0.tar.gz", hash = "sha256:bad940f9a36bc18b03f59a8245af87c19436240e9ca321afa87655c61a995ac0"},
 ]
 
 [package.extras]
-docs = ["Sphinx (>=5.0,<6.0)", "myst-parser (>=0.18,<0.19)", "sphinx-rtd-theme (>=1.0,<2.0)"]
+docs = ["Sphinx (>=5,<8)", "myst-parser (>=0.18,<3.1)", "sphinx-rtd-theme (>=1,<4)"]
 
 [[package]]
 name = "snowballstemmer"
