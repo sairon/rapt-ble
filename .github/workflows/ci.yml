@@ -62,6 +62,11 @@ jobs:
   release:
     runs-on: ubuntu-latest
     environment: release
+
+    permissions:
+      id-token: write
+      contents: write
+
     if: github.ref == 'refs/heads/main'
     needs:
       - test
@@ -73,14 +78,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Run semantic release:
-      # - Update CHANGELOG.md
-      # - Update version in code
-      # - Create git tag
-      # - Create GitHub release
-      # - Publish to PyPI
       - name: Python Semantic Release
-        uses: relekang/python-semantic-release@9a026e9303981c866c3425723009becb2437c757 # v10.6.2
+        id: release
+        uses: python-semantic-release/python-semantic-release@9a026e9303981c866c3425723009becb2437c757 # v10.6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          pypi_token: ${{ secrets.PYPI_TOKEN }}
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        if: steps.release.outputs.released == 'true'
+
+      - name: Publish package to GitHub Release
+        uses: python-semantic-release/publish-action@6d89e2de8d40ecb3717316ecbbf15a6fa8ea9039 # v10.6.2
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
