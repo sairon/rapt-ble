@@ -36,7 +36,7 @@ bluetooth-data-tools = ">=0.3.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
-pytest-cov = "^6.0"
+pytest-cov = ">=6,<8"
 
 [tool.poetry.group.docs]
 optional = true
