@@ -7,7 +7,7 @@ from sensor_state_data import DeviceKey, SensorUpdate
 from .custom_state_data import DeviceClass, Units
 from .parser import RAPTPillBluetoothDeviceData
 
-__version__ = "1.0.0"
+__version__ = "2.0.0"
 
 __all__ = [
     "DeviceClass",
