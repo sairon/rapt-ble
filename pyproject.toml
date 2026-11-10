@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rapt-ble"
-version = "2.0.0"
+version = "2.0.1"
 description = "Parser for the RAPT Pill hydrometer BLE packets."
 authors = ["Jan Čermák <sairon@sairon.cz>"]
 license = "MIT"
