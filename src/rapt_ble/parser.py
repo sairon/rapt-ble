@@ -188,7 +188,11 @@ class RAPTPillBluetoothDeviceData(BluetoothData):
             _LOGGER.debug("Ignoring 'RAPTdPillG1' payload")
             return
 
-        if len(data) != 23:
+        if len(data) == 24 and data[:2] == b"PT":
+            _LOGGER.debug("Ignoring RAPT compact status payload: %s", data)
+            return
+
+        if len(data) != 23 or data[:2] != b"PT":
             _LOGGER.error("Unknown RAPT payload: %s", data)
             return
 
