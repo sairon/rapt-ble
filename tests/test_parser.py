@@ -45,6 +45,8 @@ def bytes_to_service_info(payload: bytes) -> BluetoothServiceInfo:
         b"RAPT\x02\x00\x00\x00\x00\x00\x00\x94\x8bD|\xb9\xf64E\x02b&w*\xac",
         # payload v2 - valid gravity velocity
         b"RAPT\x02\x00\x01\xc1\x6d\x26\x14\x92\x6b\x44\x7f\x52\xc9\x31\xc9\x02\x2d\x29\x97\x3f\x46",
+        # firmware 2.0.1 compact status
+        b"RAPT\xb7x\xe3m<\xb9\x94\x01\xff\xfeA\xf5\x08\xd0'\x10\x7f\xff\x02\x00\x01\x07",
         b"RAPTdPillG1",
         b"KEG20220612_050156_81c6d1",
     ],
@@ -278,3 +280,16 @@ def test_parse_metrics_v2_no_velocity():
             ),
         },
     )
+
+
+def test_ignore_compact_status_payload(caplog):
+    device = RAPTPillBluetoothDeviceData()
+    data = bytes_to_service_info(
+        b"RAPT\xb7x\xe3m<\xb9\x94\x01\xff\xfeA\xf5\x08\xd0'\x10\x7f\xff\x02\x00\x01\x07"
+    )
+
+    result = device.update(data)
+
+    assert "Ignoring RAPT compact status payload" in caplog.text
+    assert DeviceKey("temperature", None) not in result.entity_values
+    assert result.devices[None].sw_version is None
